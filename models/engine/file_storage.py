@@ -14,7 +14,7 @@ class FileStorage:
 
     def new(self, obj):
         """Adds a new object to the storage dictionary"""
-        # Use snake_case for method names and add a docstring.
+       
         self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
 
     def save(self):
