@@ -54,10 +54,10 @@ class FileStorage:
         Deletes the provided object from storage if it exists.
 
         Args:
-            obj (BaseModel, optional): The object to delete. Defaults to None.
+        obj (BaseModel, optional): The object to delete. Defaults to None.
         """
         if obj is not None:
             key = obj.__class__.__name__ + '.' + obj.id
-            if key in FileStorage.__objects:
-                del FileStorage.__objects[key]
+            FileStorage.__objects.pop(key, None)  # Use pop to safely remove the item if it exists
+      
 
