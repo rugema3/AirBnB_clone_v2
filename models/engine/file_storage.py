@@ -14,7 +14,7 @@ class FileStorage:
 
     def new(self, obj):
         """Adds a new object to the storage dictionary"""
-       
+
         self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
 
     def save(self):
@@ -59,4 +59,5 @@ class FileStorage:
         """
         if obj is not None:
             key = obj.__class__.__name__ + '.' + obj.id
-            FileStorage.__objects.pop(key, None)  # Use pop to safely remove the item if it exists
+            FileStorage.__objects.pop(key, None)
+            # Use pop to safely remove the item if it exists
