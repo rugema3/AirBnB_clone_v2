@@ -1,20 +1,42 @@
-# web_server_setup.pp
+# Define variables
+$nginx_config = @(EOL)
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    add_header X-Served-By $HOSTNAME;
+    root   /var/www/html;
+    index  index.html index.htm;
 
-# Install Nginx package
+    location /hbnb_static {
+        alias /data/web_static/current;
+        index index.html index.htm;
+    }
+
+    location /redirect_me {
+        return 301 http://cuberule.com/;
+    }
+
+    error_page 404 /404.html;
+    location /404 {
+      root /var/www/html;
+      internal;
+    }
+}
+EOL
+
+# Update package list
 package { 'nginx':
   ensure => 'installed',
 }
 
-# Create directories
-file { '/data/web_static/releases/test/':
+# Create necessary directories
+file { ['/data/web_static/releases/test/', '/data/web_static/shared/']:
   ensure => 'directory',
+  owner  => 'ubuntu',
+  group  => 'ubuntu',
 }
 
-file { '/data/web_static/shared/':
-  ensure => 'directory',
-}
-
-# Create a fake HTML file
+# Create a fake HTML file with the specified message
 file { '/data/web_static/releases/test/index.html':
   ensure  => 'file',
   content => 'Devoops is not that easy',
@@ -23,30 +45,34 @@ file { '/data/web_static/releases/test/index.html':
   mode    => '0644',
 }
 
-# Create a symbolic link
+# Create a symbolic link to the /data/web_static/releases/test/ folder
 file { '/data/web_static/current':
-  ensure  => 'link',
-  target  => '/data/web_static/releases/test',
-  owner   => 'ubuntu',
-  group   => 'ubuntu',
+  ensure => 'link',
+  target => '/data/web_static/releases/test/',
+  owner  => 'ubuntu',
+  group  => 'ubuntu',
 }
 
-# Define Nginx configuration
+# Manage Nginx configuration
 file { '/etc/nginx/sites-available/default':
   ensure  => 'file',
-  content => template('path/to/nginx_config.erb'),
-  notify  => Service['nginx'],
+  content => $nginx_config,
+  owner   => 'root',
+  group   => 'root',
+  mode    => '0644',
 }
 
-# Notify Nginx to restart when the configuration changes
+# Enable the Nginx site configuration
+exec { 'enable_nginx_site':
+  command => 'ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/',
+  unless  => 'test -e /etc/nginx/sites-enabled/default',
+  path    => ['/bin', '/usr/bin'],
+}
+
+# Restart Nginx to apply the changes
 service { 'nginx':
-  ensure  => 'running',
-  enable  => true,
-  require => File['/etc/nginx/sites-available/default'],
-}
-
-# Print a message indicating the setup is complete
-notify { 'web_server_setup_message':
-  message => 'Web server setup for web_static deployment is complete.',
+  ensure    => 'running',
+  enable    => true,
+  subscribe => File['/etc/nginx/sites-available/default'],
 }
 
