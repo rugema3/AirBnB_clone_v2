@@ -11,7 +11,7 @@ def display():
     return "Hello HBNB!"
 
 
-@app.route('/hbnb')
+@app.route('/hbnb', strict_slashes=False)
 def hello():
     """A function that returns a simple message."""
     return "hbnb"
