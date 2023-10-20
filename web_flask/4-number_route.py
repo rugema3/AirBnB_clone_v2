@@ -30,13 +30,10 @@ def Cool_python(text='is cool'):
     return "Python {}".format(text.replace("_", " "))
 
 
-@app.route('/number/<n>')
+@app.route('/number/<int:n>')
 def is_number(n):
     """Check if n is a number."""
-    # Convert the input to integer
-    n = int(n)
-
-    return f"{n} is a number\n"
+    return f"{n} is a number"
 
 
 if __name__ == '__main__':
