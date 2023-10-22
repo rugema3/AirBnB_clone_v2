@@ -28,11 +28,11 @@ class MyDBConfig:
             database (str): The name of the database.
             env (str): The environment (e.g., 'development' or 'test').
         """
-        self.my_user = getenv("HBNB_MYSQL_USER")
+        self.user = getenv("HBNB_MYSQL_USER")
         self.my_password = getenv("HBNB_MYSQL_PWD")
-        self.my_host = getenv("HBNB_MYSQL_HOST", "localhost")
-        self.my_database = getenv("HBNB_MYSQL_DB")
-        self.my_env = getenv("HBNB_ENV")
+        self.host = getenv("HBNB_MYSQL_HOST", "localhost")
+        self.db = getenv("HBNB_MYSQL_DB")
+        self.env = getenv("HBNB_ENV")
 
 
 class MyDBStorage:
@@ -54,14 +54,14 @@ class MyDBStorage:
         config = MyDBConfig()
 
         connection_string = 'mysql+mysqldb://{}:{}@{}'.format(
-                config.my_user, config.my_password, config.my_host
+                config.user, config.my_password, config.host
                 )
         self.__my_engine = create_engine(
-                connection_string + '/{}'.format(config.my_database),
+                connection_string + '/{}'.format(config.db),
                 pool_pre_ping=True
                 )
 
-        if config.my_env == "test":
+        if config.env == "test":
             Base.metadata.drop_all(self.__my_engine)
             Base.metadata.create_all(self.__my_engine)
 
